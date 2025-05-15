@@ -6,7 +6,8 @@ import torch.onnx
 from torch import nn
 
 # Load Indian cities from local CSV
-cities = pd.read_csv("cities.csv")["city"].tolist()
+df = pd.read_csv("cities.csv", header=None)
+cities = df.iloc[1].tolist()  # Get the second row which contains city names
 
 # build the vocabulary of characters and mappings to/from integers
 chars = sorted(list(set(''.join(cities))))
