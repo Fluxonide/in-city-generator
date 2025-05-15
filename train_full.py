@@ -5,8 +5,8 @@ import torch.nn.functional as F
 import torch.onnx
 from torch import nn
 
-# Load Indian cities
-cities = pd.read_csv("cities_raw.csv")["city"].tolist()
+# Load Indian cities from local CSV
+cities = pd.read_csv("cities.csv")["city"].tolist()
 
 # build the vocabulary of characters and mappings to/from integers
 chars = sorted(list(set(''.join(cities))))
@@ -90,10 +90,10 @@ class DatasetManager:
         return out
 
 # HYPERPARAMETERS
-block_size = 12  # Increased for longer Indian city names
-batch_size = 40
-n_embd = 32     # Increased embedding dimension
-n_hidden = 200  # Increased hidden layer size
+block_size = 15  # Increased for longer Indian city names
+batch_size = 64  # Increased batch size for better training
+n_embd = 48     # Increased embedding dimension
+n_hidden = 256  # Increased hidden layer size
 
 # Randomly split into train/val
 indices = torch.randperm(len(cities))
@@ -110,8 +110,12 @@ class FinalMLP(nn.Module):
             nn.Embedding(vocab_size, n_embd),
             nn.Flatten(start_dim=1),
             nn.Linear(n_embd * block_size, n_hidden),
-            nn.ReLU(),  # Added activation
-            nn.Linear(n_hidden, vocab_size)
+            nn.ReLU(),
+            nn.Dropout(0.1),  # Added dropout for regularization
+            nn.Linear(n_hidden, n_hidden // 2),  # Added another layer
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(n_hidden // 2, vocab_size)
         )
 
         with torch.no_grad():
