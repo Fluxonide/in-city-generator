@@ -9,6 +9,9 @@ from torch import nn
 df = pd.read_csv("cities.csv", header=None)
 cities = df.iloc[1].tolist()  # Get the second row which contains city names
 
+# Clean the city names (remove any NaN or empty values)
+cities = [str(city).strip() for city in cities if pd.notna(city) and str(city).strip()]
+
 # build the vocabulary of characters and mappings to/from integers
 chars = sorted(list(set(''.join(cities))))
 stoi = {s: i+1 for i, s in enumerate(chars)}
@@ -58,12 +61,16 @@ class DatasetManager:
     def _build_dataset(self, data):
         X, Y = [], []
         for w in data:
-            encoding = encode(w + '.')
-            context = encode('.') * self.block_size
-            for idx in encoding:
-                X.append(context)
-                Y.append(idx)
-                context = context[1:] + [idx]
+            try:
+                encoding = encode(w + '.')
+                context = encode('.') * self.block_size
+                for idx in encoding:
+                    X.append(context)
+                    Y.append(idx)
+                    context = context[1:] + [idx]
+            except KeyError as e:
+                print(f"Warning: Skipping city '{w}' due to invalid character")
+                continue
         return torch.tensor(X), torch.tensor(Y)
 
     def get_batch(self, split: Literal["train", "val", "full"]):
@@ -162,6 +169,10 @@ class FinalMLP(nn.Module):
         return ''.join(itos[i] for i in out)
 
 if __name__ == '__main__':
+    print(f"Total cities: {len(cities)}")
+    print(f"Vocabulary size: {vocab_size}")
+    print(f"Characters in vocabulary: {chars}")
+    
     model = FinalMLP()
     total_params = sum(p.numel() for p in model.parameters())
     print("Params: ", total_params)
