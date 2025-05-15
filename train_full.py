@@ -6,8 +6,8 @@ import torch.onnx
 from torch import nn
 
 # Load Indian cities from local CSV
-df = pd.read_csv("cities.csv", header=None)
-cities = df.iloc[1].tolist()  # Get the second row which contains city names
+df = pd.read_csv("cities.csv")
+cities = df['city'].tolist()  # Get city names from the 'city' column
 
 # Clean the city names (remove any NaN or empty values)
 cities = [str(city).strip() for city in cities if pd.notna(city) and str(city).strip()]
