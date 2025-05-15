@@ -9,7 +9,7 @@ Generate realistic Indian city names using a neural network trained on actual In
 pip install -r requirements.txt
 ```
 
-2. Scrape the Indian city data:
+2. Download the Indian city data:
 ```bash
 python scrape.py
 ```
@@ -37,4 +37,6 @@ After training, the model will automatically generate 40 example city names. You
 
 ## Data Source
 
+The training data is sourced from a comprehensive JSON file of Indian cities maintained on GitHub:
+https://raw.githubusercontent.com/nshntarora/Indian-Cities-JSON/refs/heads/master/cities-name-list.json 
 The training data is scraped from Wikipedia's list of cities in India by population. 
